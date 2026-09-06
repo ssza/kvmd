@@ -59,7 +59,7 @@ class NbdClient:
 
     async def get_remotes(self) -> dict[str, Any]:
         async with self.__make_session() as session:
-            async with session.get("/state") as resp:
+            async with session.get("/remotes") as resp:
                 htclient.raise_not_200(resp)
                 remotes = (await resp.json())["result"]
                 assert isinstance(remotes, dict)
