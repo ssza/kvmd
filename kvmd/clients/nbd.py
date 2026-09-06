@@ -26,8 +26,8 @@ from typing import Any
 import aiohttp
 
 from ..nbd.types import NbdImage
-from ..nbd.types import NbdStatusEvent
-from ..nbd.types import NbdStopped
+from ..nbd.types import NbdRunningEvent
+from ..nbd.types import NbdStoppedEvent
 from ..nbd.types import NbdState
 
 from ..nbd.errors import NbdBoundError
@@ -100,11 +100,17 @@ class NbdClient:
                         raise NbdClientError(f"Unexpected message type: {msg!r}")
                     (event_type, event) = htserver.parse_ws_event(msg.data)
                     if event_type == "nbd":
+                        info: (NbdRunningEvent | NbdStoppedEvent | None) = None
+                        match event["status"]:
+                            case "running":
+                                info = NbdRunningEvent(**event["info"])
+                            case "stopped":
+                                info = NbdStoppedEvent(**event["info"])
                         yield NbdState(
+                            device=event["device"],
                             image=(None if event["image"] is None else NbdImage(**event["image"])),
-                            bound=event["bound"],
-                            changed=(None if event["changed"] is None else NbdStatusEvent(**event["changed"])),
-                            stopped=(None if event["stopped"] is None else NbdStopped(**event["stopped"])),
+                            status=event["status"],
+                            info=info,
                         )
 
     async def __parse_response(self, resp: aiohttp.ClientResponse) -> dict:

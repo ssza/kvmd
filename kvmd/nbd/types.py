@@ -40,23 +40,18 @@ class BaseNbdEvent:
 
 
 @dataclasses.dataclass(frozen=True)
-class NbdSetupEvent(BaseNbdEvent):
+class NbdStartingEvent(BaseNbdEvent):
     image: NbdImage
 
 
 @dataclasses.dataclass(frozen=True)
-class NbdStartEvent(BaseNbdEvent):
-    pass
-
-
-@dataclasses.dataclass(frozen=True)
-class NbdStatusEvent(BaseNbdEvent):
+class NbdRunningEvent(BaseNbdEvent):
     online: bool
     msg:    str
 
 
 @dataclasses.dataclass(frozen=True)
-class NbdStopEvent(BaseNbdEvent):
+class NbdStoppedEvent(BaseNbdEvent):
     src: str
     msg: str
     ok:  bool
@@ -64,14 +59,8 @@ class NbdStopEvent(BaseNbdEvent):
 
 # =====
 @dataclasses.dataclass(frozen=True)
-class NbdStopped:
-    image:  NbdImage
-    result: NbdStopEvent
-
-
-@dataclasses.dataclass(frozen=True)
 class NbdState:
+    device:  str
     image:   (NbdImage | None) = dataclasses.field(default=None)
-    bound:   str = dataclasses.field(default="")
-    changed: (NbdStatusEvent | None) = dataclasses.field(default=None)
-    stopped: (NbdStopped | None) = dataclasses.field(default=None)
+    status:  (str | None) = dataclasses.field(default=None)
+    info:    (NbdRunningEvent | NbdStoppedEvent | None) = dataclasses.field(default=None)

@@ -40,8 +40,8 @@ from .errors import NbdIoConnectionError
 
 from .types import NbdImage
 from .types import BaseNbdEvent
-from .types import NbdStartEvent
-from .types import NbdStopEvent
+from .types import NbdRunningEvent
+from .types import NbdStoppedEvent
 
 from .device import NbdDevice
 from .remotes import BaseNbdRemote
@@ -130,7 +130,7 @@ class NbdProcess:
                 # Прибиваем через shutdown(), чтобы всё, что держится на сокетах, прервалось.
                 # Если не получилось - делаем cancel() и дожидаемся SIGKILL.
                 if link.shutdown():
-                    self.__queue_event_noex(NbdStopEvent("main", "Shutdown", True))
+                    self.__queue_event_noex(NbdStoppedEvent("main", "Shutdown", True))
                 else:
                     for task in tasks:
                         task.cancel()
@@ -183,7 +183,7 @@ class NbdProcess:
                     if isinstance(ex, TimeoutError):
                         raise NbdError("Can't open+close device in time")
                     raise
-                self.__events_q.put_nowait(NbdStartEvent())
+                self.__events_q.put_nowait(NbdRunningEvent(True, "Online"))
                 self.__ready_nr.notify(1)
                 await aiotools.wait_infinite()
 
@@ -205,7 +205,7 @@ class NbdProcess:
             logger.exception("Unhandled exception")
         finally:
             if msg:
-                self.__queue_event_noex(NbdStopEvent(src, msg, False))
+                self.__queue_event_noex(NbdStoppedEvent(src, msg, False))
             if subtask:
                 logger.info("Subtask %s finished", src)
 

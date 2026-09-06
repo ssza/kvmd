@@ -53,9 +53,6 @@ class NbdServer(HttpServer):
     ) -> None:
 
         super().__init__()
-
-        self.__device_path = device_path
-
         self.__ctl = NbdController(device_path, use_blkroset)
 
     # ===== HTTP
