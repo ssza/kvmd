@@ -22,6 +22,7 @@
 
 import asyncio
 import signal
+import uuid
 import contextlib
 import logging
 
@@ -63,13 +64,14 @@ class NbdProcess:
         self.__device = device
         self.__remote = remote
         self.__image = image
+        self.__binding_id = str(uuid.uuid4())
 
         self.__events_q: aiomulti.AioMpQueue[BaseNbdEvent] = aiomulti.AioMpQueue(self.__QUEUE_SIZE)
         self.__proc = aiomulti.AioMpProcess("nbd", self.__subprocess)
         self.__ready_nr = aiomulti.AioMpNotifier()
 
-    def get_image(self) -> NbdImage:
-        return self.__image
+    def get_binding(self) -> tuple[str, NbdImage]:
+        return (self.__binding_id, self.__image)
 
     def stop(self) -> None:
         self.__proc.send_sigterm()

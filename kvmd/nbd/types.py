@@ -41,7 +41,8 @@ class BaseNbdEvent:
 
 @dataclasses.dataclass(frozen=True)
 class NbdStartingEvent(BaseNbdEvent):
-    image: NbdImage
+    binding_id: str
+    image:      NbdImage
 
 
 @dataclasses.dataclass(frozen=True)
@@ -59,8 +60,14 @@ class NbdStoppedEvent(BaseNbdEvent):
 
 # =====
 @dataclasses.dataclass(frozen=True)
+class NbdStateBinding:
+    id:     str
+    image:  NbdImage
+    status: str
+    info:   (NbdRunningEvent | NbdStoppedEvent | None)
+
+
+@dataclasses.dataclass(frozen=True)
 class NbdState:
     device:  str
-    image:   (NbdImage | None) = dataclasses.field(default=None)
-    status:  (str | None) = dataclasses.field(default=None)
-    info:    (NbdRunningEvent | NbdStoppedEvent | None) = dataclasses.field(default=None)
+    binding: (NbdStateBinding | None)
