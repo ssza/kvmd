@@ -218,7 +218,7 @@ for _variant in "${_variants[@]}"; do
 		backup=()
 
 		pkgdesc=\"PiKVM platform configs - $_platform for $_board\"
-		depends=(kvmd=\"${epoch:+$epoch:}$pkgver-$pkgrel\" \"linux-rpi-pikvm>=6.12.92-2\" \"pikvm-os-raspberrypi>=0.10\")
+		depends=(kvmd=\"${epoch:+$epoch:}$pkgver-$pkgrel\" \"pikvm-os-raspberrypi>=0.10\")
 
 		if [[ $_base == v0 ]]; then
 			depends=(\"\${depends[@]}\" platformio-core avrdude make patch)
